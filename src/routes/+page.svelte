@@ -20,12 +20,15 @@
 		const response = await PostsApi.getAll();
 
 		if (!response.success) {
-			throw new Error(getReasonPhrase(response.data.code));
+			throw new Error(getReasonPhrase(response.data.code || response.data.message));
 		}
+
+		localStorage.setItem('posts', JSON.stringify(response.data));
 
 		return response.data;
 	};
 
+	const oldPosts = JSON.parse(localStorage.getItem('posts'));
 </script>
 
 {#await loadData()}
@@ -36,4 +39,14 @@
 	<ErrorComponent>
 		{e}
 	</ErrorComponent>
+
+	{#if oldPosts}
+		<div>
+			<h3 style="margin: 0 0 24px; color: red">Данные загружены из browser local storage</h3>
+
+			<Feed posts={oldPosts} />
+		</div>
+	{:else}
+		<p>Нет данных для отображения.</p>
+	{/if}
 {/await}
